@@ -29,7 +29,7 @@ bool DoTestMoving(Frame f)
 
 bool DoTestStopped(Frame f)
 {
-    return true;
+    return false;
 }
 
 bool DoTestRedLight(Frame f)
