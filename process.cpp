@@ -1,6 +1,6 @@
 #define  PROCESS
 #include "process.h"
-
+// carlos
 Frame gprevFrame;	// previously captured frame
 TheState theState;
 
