@@ -1,0 +1,46 @@
+To download entire project:
+  git clone https://github.com/carlos-gonza/greenlight.git
+
+.. edit a file ..
+
+git add file
+.. file is now staged for commit ..
+git status
+git commit -s
+.. file is now commited ..
+git log
+git show
+git push origin master
+.. file is now pushed to remote ..
+
+Username for 'https://github.com': carlos-gonza          
+Password for 'https://carlos-gonza@github.com': 
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 328 bytes | 164.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To https://github.com/carlos-gonza/greenlight.git
+   5a333f4..67dae61  master -> master
+Branch 'master' set up to track remote branch 'master' from 'origin'.
+
+.. to pull latest changes from remote ..
+git pull
+
+.. edit a file ..
+.. to discard the file ..
+git checkout -- file
+
+.. edit a file ..
+git add file
+.. file is now staged for commit..
+.. to discard the file, first unstage ..
+git reset HEAD file
+.. now discard..
+git checkout -- file
+ 
+
+git commit --amend -a
+git push origin master
