@@ -9,6 +9,23 @@ TheState theState;
 
 #define DELTAVAL(POS) abs(VAL(POS) - VALPREV(POS))
 
+/**
+ * RGBCloseToColor
+ * return true if RGB is close to a Color
+ */
+bool RGBCloseToColor(int R, int G, int B, int ColorR, int ColorG, int ColorB)
+{
+    const int CLOSECOLORTHRESHHOLD = 10;
+    return ((abs(R - ColorR) < CLOSECOLORTHRESHHOLD) &&
+            (abs(G - ColorG) < CLOSECOLORTHRESHHOLD) &&
+            (abs(B - ColorB) < CLOSECOLORTHRESHHOLD));
+}
+
+/**
+ *  DoTestMoving
+ *  return true if between gprevFrame and f, we appear to
+ *  be moving.
+ */
 bool DoTestMoving(Frame f)
 {
     const unsigned long MOVINGTHRESHHOLD = 100;
@@ -29,17 +46,58 @@ bool DoTestMoving(Frame f)
 
 bool DoTestStopped(Frame f)
 {
-    return false;
+    const unsigned long STOPPEDTHRESHHOLD = 100;
+    int w = f.imageWidth;
+    int h = f.imageHeight;
+    BYTE *pmatrix = (BYTE *) &f.data[0];
+    BYTE *pprevmatrix = (BYTE *) &gprevFrame.data[0];
+    unsigned long sumval = 0;
+
+    for (int rowpos = 0; rowpos < h; rowpos++) {
+        for (int xpos = 0; xpos < w; xpos++) {
+            sumval += DELTAVAL(3*(rowpos*w + xpos));
+        }
+    }
+
+    return sumval < STOPPEDTHRESHHOLD;
+}
+
+/**
+ * DoTestRedLight
+ * return true if we see a red light signal
+ * only use frame f
+ */
+bool DoTestRedToGreen(Frame f)
+{
+    int pos = 0;
+    BYTE *pmatrix = (BYTE *) &f.data[0];
+    pos = theState.getLightPos();
+    int R = pmatrix[pos];
+    int G = pmatrix[pos+1];
+    int B = pmatrix[pos+2];
+    return (RGBCloseToColor(R, G, B, 0, 255, 0));
 }
 
 bool DoTestRedLight(Frame f)
 {
-    return true;
-}
+    int w = f.imageWidth;
+    int h = f.imageHeight;
+    BYTE *pmatrix = (BYTE *) &f.data[0];
 
-bool DoTestRedToGreen(Frame f)
-{
-    return true;
+    for (int rowpos = 0; rowpos < h; rowpos++) {
+        for (int xpos = 0; xpos < w; xpos++) {
+            int pos = 3*(rowpos*w + xpos);
+            int R = pmatrix[pos];
+            int G = pmatrix[pos+1];
+            int B = pmatrix[pos+2];
+            if (RGBCloseToColor(R, G, B, 255, 0, 0)) {
+                theState.setLightPos(pos);
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool DoTestLocked(Frame f)

@@ -4,7 +4,7 @@
 TheState::TheState()
 {
     cs = MOVING;
-    lightXCoord = lightYCoord = 0;
+    lightPos = 0;
 }
 
 void TheState::setCurrentState(CurrentState cs)
@@ -16,16 +16,20 @@ CurrentState TheState::getCurrentState() {
     return this->cs;
 }
 
-void TheState::setLightCoordinates(int x, int y) {
-    lightXCoord = x;
-    lightYCoord = y;
+void TheState::setLightPos(int pos) {
+    lightPos = pos;
 }
 
-bool TheState::getLightCoordinates(int &x, int &y) {
-    x = lightXCoord;
-    y = lightYCoord;
+int TheState::getLightPos() {
+    return lightPos;
 }
 
+/**
+ * TestFor
+ * Returns what state to test for according to
+ * the current state cs.
+ * For example if cs is MOVING, then we state for STOPPED
+ */
 CurrentState  TheState::TestFor()
 {
     switch (cs) {

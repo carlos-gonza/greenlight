@@ -22,15 +22,15 @@ typedef enum CURRENTSTATE {
 class TheState {
 private:
     CurrentState cs;
-    int lightXCoord, lightYCoord;
+    int lightPos;
 
 public:
     TheState();
     void setCurrentState(CurrentState cs);
     CurrentState getCurrentState();
     CurrentState TestFor();
-    void setLightCoordinates(int x, int y);
-    bool getLightCoordinates(int &x, int &y);
+    void setLightPos(int pos);
+    int getLightPos();
 };
 
 #endif

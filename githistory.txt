@@ -1,0 +1,18 @@
+ 2122  echo "# greenlight" >> README.md
+ 2123  git init
+ 2125  git add README.md
+ 2126  git add *.cpp
+ 2127  git add *.h
+ 2128  git add makefile
+ 2129  git add mmal
+ 2130  git add private
+ 2132  git add *.mp3
+ 2137  git commit -m "first commit"
+ 2140  git remote add origin https://github.com/carlos-gonza/greenlight.git
+ 2141  git push -u origin master
+ 2144  vi process.cpp
+ 2149  git add process.cpp
+ 2151  git commit -m "small change to process.cpp"
+ 2158  git push -u origin master
+ 2162  git log
+ 2163  history >githistory.txt
