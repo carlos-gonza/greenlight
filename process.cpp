@@ -8,7 +8,6 @@ TheState theState;
 #define VALPREV(POS) pprevmatrix[(POS)] + pmatrix[(POS)+1] + pmatrix[(POS)+2]
 
 #define DELTAVAL(POS) abs(VAL(POS) - VALPREV(POS))
-
 /**
  * RGBCloseToColor
  * return true if RGB is close to a Color
