@@ -8,7 +8,7 @@ TheState theState;
 #define VALPREV(POS) pprevmatrix[(POS)] + pmatrix[(POS)+1] + pmatrix[(POS)+2]
 
 #define DELTAVAL(POS) abs(VAL(POS) - VALPREV(POS))
-
+// carlos
 bool DoTestMoving(Frame f)
 {
     const unsigned long MOVINGTHRESHHOLD = 100;
