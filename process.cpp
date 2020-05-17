@@ -25,7 +25,7 @@ bool RGBCloseToColor(int R, int G, int B, int ColorR, int ColorG, int ColorB)
  *  return true if between gprevFrame and f, we appear to
  *  be moving.
  */
-bool DoTestMoving(Frame f)
+bool DoTestMoving(Frame &f)
 {
     const unsigned long MOVINGTHRESHHOLD = 100;
     int w = f.imageWidth;
@@ -43,7 +43,7 @@ bool DoTestMoving(Frame f)
     return sumval > MOVINGTHRESHHOLD;
 }
 
-bool DoTestStopped(Frame f)
+bool DoTestStopped(Frame &f)
 {
     const unsigned long STOPPEDTHRESHHOLD = 100;
     int w = f.imageWidth;
@@ -66,7 +66,7 @@ bool DoTestStopped(Frame f)
  * return true if we see a red light signal
  * only use frame f
  */
-bool DoTestRedToGreen(Frame f)
+bool DoTestRedToGreen(Frame &f)
 {
     int pos = 0;
     BYTE *pmatrix = (BYTE *) &f.data[0];
@@ -77,7 +77,7 @@ bool DoTestRedToGreen(Frame f)
     return (RGBCloseToColor(R, G, B, 0, 255, 0));
 }
 
-bool DoTestRedLight(Frame f)
+bool DoTestRedLight(Frame &f)
 {
     int w = f.imageWidth;
     int h = f.imageHeight;
@@ -99,12 +99,12 @@ bool DoTestRedLight(Frame f)
     return false;
 }
 
-bool DoTestLocked(Frame f)
+bool DoTestLocked(Frame &f)
 {
     return true;
 }
 
-bool DoTestLockMoving(Frame f)
+bool DoTestLockMoving(Frame &f)
 {
     return true;
 }
@@ -120,7 +120,7 @@ bool DoTestLockMoving(Frame f)
 * We use global theState for additional information needed, like
 * coordinates of where the signal light is.
 */
-bool DoTest(Frame f, CurrentState testState)
+bool DoTest(Frame &f, CurrentState testState)
 {
     switch (testState) {
     case MOVING:
@@ -159,7 +159,7 @@ bool processFrame(Frame &f, Action &a)
     bool bActionNecessary = false;
 
     // analyze f.Grid
-    BYTE *pmatrix = (BYTE *) &f.data[0];
+    // carlos BYTE *pmatrix = (BYTE *) &f.data[0];
 
     // pmatrix, f.imageWidth, f.imageHeight
     CurrentState testState = theState.TestFor();
@@ -194,14 +194,15 @@ void processthread()
         if (!fq.empty()) {
             Frame f = fq.front();
             fq.pop();
-
-            clock_t now = clock();
-            if ((now - f.captureticks) < CAPTURETICKS_THRESHHOLD) {
-                // frame was captured recently so process it
-                Action a;
-                bool bTakeAction = processFrame(f, a);
-                if (bTakeAction) {
-                    aq.push(a);
+            if (aq.size() < 10) { // keep aq at or below 10
+                clock_t now = clock();
+                if ((now - f.captureticks) < CAPTURETICKS_THRESHHOLD) {
+                    // frame was captured recently so process it
+                    Action a;
+                    bool bTakeAction = processFrame(f, a);
+                    if (bTakeAction) {
+                        aq.push(a);
+                    }
                 }
             }
         } else

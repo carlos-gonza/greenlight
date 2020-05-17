@@ -12,11 +12,11 @@ void playsoundthread(AnAction aa)
     switch (aa) {
     case STOP:
         cout << "stop" << endl;
-        system("mpg321 -q -a bluetooth -g 50 stop.mp3");
+        system("mpg321 -q -g 50 stop.mp3");
         break;
     case START:
         cout << "start" << endl;
-        system("mpg321 -q -a bluetooth -g 50 start.mp3");
+        system("mpg321 -q -g 50 start.mp3");
         break;
     default:
         cout << "default" << endl;

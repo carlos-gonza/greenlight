@@ -77,27 +77,6 @@ void processCommandLine ( int argc,char **argv,raspicam::RaspiCam &Camera ) {
     Camera.setWidth ( getParamVal ( "-w",argc,argv,1280 ) );
     Camera.setHeight ( getParamVal ( "-h",argc,argv,960 ) );
     Camera.setBrightness ( getParamVal ( "-br",argc,argv,50 ) );
-
-    Camera.setSharpness ( getParamVal ( "-sh",argc,argv,0 ) );
-    Camera.setContrast ( getParamVal ( "-co",argc,argv,0 ) );
-    Camera.setSaturation ( getParamVal ( "-sa",argc,argv,0 ) );
-    Camera.setShutterSpeed( getParamVal ( "-ss",argc,argv,0 ) );
-    if (findParam ("-hf", argc, argv) != -1)
-        Camera.setHorizontalFlip( true );
-    Camera.setISO ( getParamVal ( "-iso",argc,argv,400 ) );
-    if ( findParam ( "-vs",argc,argv ) !=-1 )
-        Camera.setVideoStabilization ( true );
-    Camera.setExposureCompensation ( getParamVal ( "-ec",argc,argv,0 ) );
-    if ( findParam ( "-gr",argc,argv ) !=-1 )
-        Camera.setFormat(raspicam::RASPICAM_FORMAT_GRAY);
-    if ( findParam ( "-yuv",argc,argv ) !=-1 )
-        Camera.setFormat(raspicam::RASPICAM_FORMAT_YUV420);
-    int idx;
-    if ( ( idx=findParam ( "-ex",argc,argv ) ) !=-1 )
-        Camera.setExposure ( getExposureFromString ( argv[idx+1] ) );
-    if ( ( idx=findParam ( "-awb",argc,argv ) ) !=-1 )
-        Camera.setAWB( getAwbFromString ( argv[idx+1] ) );
-
 }
 void showUsage() {
     cout<<"Usage: "<<endl;
@@ -106,22 +85,12 @@ void showUsage() {
     cout<<"[-test sets test mode]\n";
     cout<<"[-da dumps action images]\n";
     cout<<"[-hf flips image horizontally]\n";
-    cout<<"[-gr sets gray color mode]\n";
-    cout<<"[-test_speed use for test speed and no images will be saved]\n";
-    cout<<"[-yuv sets yuv420 color mode]\n";
     cout<<"[-w width] [-h height] \n[-br brightness_val(0,100)]\n[-sh  sharpness_val (-100 to 100)]\n";
-    cout<<"[-co contrast_val (-100 to 100)]\n[-sa saturation_val (-100 to 100)]\n";
-    cout<<"[-iso ISO_val  (100 to 800)]\n[-vs turns on video stabilisation]\n[-ec exposure_compensation_value(-10,10)]\n";
-    cout<<"[-ss shutter_speed (value in microsecs (max 330000)]\n[-ec exposure_compensation_value(-10,10)]\n";
-    cout<<"[-exp mode (OFF,AUTO,NIGHT,NIGHTPREVIEW,BACKLIGHT,SPOTLIGHT,SPORTS,SNOW,BEACH,VERYLONG,FIXEDFPS,ANTISHAKE,FIREWORKS)]"<<endl;
-    cout<<"[-awb (OFF,AUTO,SUNLIGHT,CLOUDY,TUNGSTEN,FLUORESCENT,INCANDESCENT,FLASH,HORIZON)]"<<endl;
     cout<<"[-nframes val: number of frames captured (100 default)]\n";
-//      cout<<"[-ex    exposure_mode (
     cout<<endl;
 }
 
 std::mutex mtx;
-
 
 #if 0
 /**

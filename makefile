@@ -25,4 +25,4 @@ rungreenlight:
 .PHONY:	clean
 
 clean:
-	rm -f *.o private/*.o mmal/*.o *~ core *~
+	rm -f greenlight *.o private/*.o mmal/*.o *~ core *~
