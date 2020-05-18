@@ -1,8 +1,11 @@
-#define  PROCESS
+//#define  PROCESS
 #include "process.h"
+#include "bmp.h"
+#include <math.h>
 
 Frame gprevFrame;	// previously captured frame
 TheState theState;
+std::queue<Frame> fq;
 
 #define VAL(POS) pmatrix[(POS)] + pmatrix[(POS)+1] + pmatrix[(POS)+2]
 #define VALPREV(POS) pprevmatrix[(POS)] + pmatrix[(POS)+1] + pmatrix[(POS)+2]
@@ -12,9 +15,12 @@ TheState theState;
  * RGBCloseToColor
  * return true if RGB is close to a Color
  */
-bool RGBCloseToColor(int R, int G, int B, int ColorR, int ColorG, int ColorB)
+bool RGBCloseToColor(int R, int G, int B, int ColorR, int ColorG, int ColorB,
+  int &delta)
 {
-    const int CLOSECOLORTHRESHHOLD = 10;
+    const int CLOSECOLORTHRESHHOLD = 50;
+    //delta = abs(R - ColorR) + abs(G - ColorG) + abs(B - ColorB);
+    delta = (int) sqrt(abs(R - ColorR)*abs(R-ColorR) + abs(G - ColorG)*abs(G - ColorG) + abs(B - ColorB)*abs(B - ColorB));
     return ((abs(R - ColorR) < CLOSECOLORTHRESHHOLD) &&
             (abs(G - ColorG) < CLOSECOLORTHRESHHOLD) &&
             (abs(B - ColorB) < CLOSECOLORTHRESHHOLD));
@@ -45,7 +51,7 @@ bool DoTestMoving(Frame &f)
 
 bool DoTestStopped(Frame &f)
 {
-    const unsigned long STOPPEDTHRESHHOLD = 100;
+    const unsigned long STOPPEDTHRESHHOLD = 15000000;
     int w = f.imageWidth;
     int h = f.imageHeight;
     BYTE *pmatrix = (BYTE *) &f.data[0];
@@ -71,10 +77,65 @@ bool DoTestRedToGreen(Frame &f)
     int pos = 0;
     BYTE *pmatrix = (BYTE *) &f.data[0];
     pos = theState.getLightPos();
+    f.pos = pos;
     int R = pmatrix[pos];
     int G = pmatrix[pos+1];
     int B = pmatrix[pos+2];
-    return (RGBCloseToColor(R, G, B, 0, 255, 0));
+    int delta = 0;
+    return (RGBCloseToColor(R, G, B, 0, 255, 0, delta));
+}
+
+// highli ght a yellow box at pos
+void Highlight(Frame &f)
+{
+    int w = f.imageWidth;
+    int h = f.imageHeight;
+    BYTE *pmatrix = (BYTE *) &f.data[0];
+    int rowpos_ = f.pos/3/w;
+    int rowpos_lb, rowpos_ub, xpos_lb, xpos_ub;
+    int xpos_ = f.pos/3 - rowpos_*w;
+    if (rowpos_ > 5)
+        rowpos_lb = rowpos_ - 5;
+    else
+        rowpos_lb = 0;
+    if (rowpos_ + 5 > h)
+        rowpos_ub = h;
+    else
+        rowpos_ub = rowpos_ + 5;
+
+    if (xpos_ > 5)
+        xpos_lb = xpos_ - 5;
+    else
+        xpos_lb = 0;
+    if (xpos_ + 5 > w)
+        xpos_ub = w;
+    else
+        xpos_ub = xpos_ + 5;
+
+    for (int rowpos = rowpos_lb; rowpos < rowpos_ub; rowpos++) {
+        int pos = 3*(rowpos*w + xpos_lb);
+        // mark yellow
+        f.data[pos] = 0;
+        f.data[pos+1] = 255;
+        f.data[pos+2] = 255;
+        pos = 3*(rowpos*w + xpos_ub);
+        // mark yellow
+        f.data[pos] = 0;
+        f.data[pos+1] = 255;
+        f.data[pos+2] = 255;
+    }
+    for (int xpos = xpos_lb; xpos < xpos_ub; xpos++) {
+        int pos = 3*(rowpos_lb*w + xpos);
+        // mark yellow
+        f.data[pos] = 0;
+        f.data[pos+1] = 255;
+        f.data[pos+2] = 255;
+        pos = 3*(rowpos_ub*w + xpos);
+        // mark yellow
+        f.data[pos] = 0;
+        f.data[pos+1] = 255;
+        f.data[pos+2] = 255;
+    }
 }
 
 bool DoTestRedLight(Frame &f)
@@ -82,18 +143,28 @@ bool DoTestRedLight(Frame &f)
     int w = f.imageWidth;
     int h = f.imageHeight;
     BYTE *pmatrix = (BYTE *) &f.data[0];
+    int delta = 0;
+    int mindelta = 255*3;
 
+#if 0
     for (int rowpos = 0; rowpos < h; rowpos++) {
         for (int xpos = 0; xpos < w; xpos++) {
             int pos = 3*(rowpos*w + xpos);
-            int R = pmatrix[pos];
-            int G = pmatrix[pos+1];
-            int B = pmatrix[pos+2];
-            if (RGBCloseToColor(R, G, B, 255, 0, 0)) {
-                theState.setLightPos(pos);
+#endif
+    for (int pos = 0; pos < w*h; pos++) {
+            int R = pmatrix[3*pos];
+            int G = pmatrix[3*pos+1];
+            int B = pmatrix[3*pos+2];
+            if (RGBCloseToColor(R, G, B, 255, 0, 0, delta)) {
+                f.pos = 3*pos;
                 return true;
             }
-        }
+            // update with closest match
+            if (delta < mindelta) {
+                f.pos = 3*pos;
+                mindelta = delta;
+printf("delta = %d pos = %d [%d,%d,%d]\n", delta, f.pos, f.data[f.pos], f.data[f.pos+1], f.data[f.pos+2]);
+            }
     }
 
     return false;
@@ -105,6 +176,11 @@ bool DoTestLocked(Frame &f)
 }
 
 bool DoTestLockMoving(Frame &f)
+{
+    return true;
+}
+
+bool DoTestGo(Frame &f)
 {
     return true;
 }
@@ -141,6 +217,9 @@ bool DoTest(Frame &f, CurrentState testState)
     case LOCKMOVING:
         return DoTestLockMoving(f);
         break;
+    case GO:
+        return DoTestGo(f);
+        break;
     default:
         break;
     }
@@ -158,13 +237,10 @@ bool processFrame(Frame &f, Action &a)
     State s;
     bool bActionNecessary = false;
 
-    // analyze f.Grid
-    // carlos BYTE *pmatrix = (BYTE *) &f.data[0];
-
-    // pmatrix, f.imageWidth, f.imageHeight
     CurrentState testState = theState.TestFor();
     if (true == DoTest(f, testState)) {
         theState.setCurrentState(testState);
+        theState.setLightPos(f.pos);
         if ((REDTOGREEN == testState) ||
                 (LOCKMOVING == testState))  {
             a.aa = START;

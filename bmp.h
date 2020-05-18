@@ -2,9 +2,7 @@
 #include <cstdio>
 #include <vector>
 #include <queue>
-//#include "raspicam.h"
 #include <string.h>
-
 #include "types.h"
 
 #pragma pack(1)
@@ -59,8 +57,7 @@ typedef struct RI {
     int idx;
 } *pRI;
 
-
-
+void rgbatorgb(BYTE *p, int sz);
 void SaveBitmapToFile( BYTE* pBitmapBits,
                        LONG lWidth,
                        LONG lHeight,

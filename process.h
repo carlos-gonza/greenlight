@@ -7,13 +7,11 @@
 #include "frame.h"
 #include "action.h"
 #include "state.h"
+#include "frame.h"
 
-#ifndef  PROCESS
 extern bool bexitprocess;
 extern int CAPTURETICKS_THRESHHOLD;
-#else
-bool bexitprocess;
-int CAPTURETICKS_THRESHHOLD = CLOCKS_PER_SEC/10; // tenth of a second
-#endif
 void processthread();
+void Highlight(Frame &f);
+bool DoTestRedLight(Frame &f);
 #endif

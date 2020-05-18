@@ -1,14 +1,38 @@
 #include "state.h"
+#include <stdio.h>
 
 // constructor
 TheState::TheState()
 {
-    cs = MOVING;
+    setCurrentState(MOVING);
     lightPos = 0;
 }
 
 void TheState::setCurrentState(CurrentState cs)
 {
+    switch (cs) {
+    case MOVING:
+        printf("state is MOVING\n"); 
+        break;
+    case LOCKMOVING:
+        printf("state is LOCKMOVING\n"); 
+        break;
+    case STOPPED:
+        printf("state is STOPPED\n"); 
+        break;
+    case REDLIGHT:
+        printf("state is REDLIGHT\n"); 
+        break;
+    case LOCKED:
+        printf("state is LOCKED\n"); 
+        break;
+    case GO:
+        printf("state is GO\n"); 
+        break;
+    default:
+        printf("state is unknown\n"); 
+        break;
+    }
     this->cs = cs;
 }
 
@@ -42,9 +66,17 @@ CurrentState  TheState::TestFor()
     case REDLIGHT:
         return REDTOGREEN;
         break;
+    case REDTOGREEN:
+        return GO;
+        break;
+    case GO:
+        return MOVING;
+        break;
     case LOCKED:
         return LOCKMOVING;
         break;
+    case LOCKMOVING:
+        return GO;
     default:
         return STOPPED;
         break;

@@ -16,12 +16,12 @@
 #define RANGEH 400
 
 typedef struct tagFRAME {
-    //RGB Grid[512][512];
-    BYTE data[1024*1024*3]; // change to 512*512*3
+    BYTE data[640*480*3];
     int imageWidth;
     int imageHeight;
     clock_t captureticks;
     clock_t processticks;
+    unsigned long pos;
 } Frame;
 
 // while driving, bs=0,srl=0,btt=0,rltg=0
@@ -38,9 +38,5 @@ typedef struct tagFrameStats {
     bool redlighturnedgreen; // true after bs=true,srl=true
 } FrameStats;
 
-#ifndef  FRAME
 extern std::queue<Frame> fq;
-#else
-std::queue<Frame> fq;
-#endif
 #endif

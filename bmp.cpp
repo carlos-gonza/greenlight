@@ -12,8 +12,20 @@ using namespace std;
 extern int BmpNum;
 int imageWidth, imageHeight;
 
-BYTE savedata[1024*1024*3];
+void rgbatorgb(BYTE *p, int sz)
+{
+        for (int i = 0; i < sz/4; i++) {
+                                BYTE b = p[i*4];
+                                BYTE g = p[i*4+1];
+                                BYTE r = p[i*4+2];
 
+                p[i*3] = r;
+                p[i*3 +1] = g;
+                p[i*3 +2] = b;
+
+
+        }
+}
 void SaveBitmapToFile(BYTE* pBitmapBits,
                       LONG lWidth,
                       LONG lHeight,
