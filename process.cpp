@@ -18,9 +18,12 @@ std::queue<Frame> fq;
 bool RGBCloseToColor(int R, int G, int B, int ColorR, int ColorG, int ColorB,
   int &delta)
 {
-    const int CLOSECOLORTHRESHHOLD = 50;
-    //delta = abs(R - ColorR) + abs(G - ColorG) + abs(B - ColorB);
+    const int CLOSECOLORTHRESHHOLD = 35;
+#if 1
+    delta = abs(R - ColorR) + abs(G - ColorG) + abs(B - ColorB);
+#else
     delta = (int) sqrt(abs(R - ColorR)*abs(R-ColorR) + abs(G - ColorG)*abs(G - ColorG) + abs(B - ColorB)*abs(B - ColorB));
+#endif
     return ((abs(R - ColorR) < CLOSECOLORTHRESHHOLD) &&
             (abs(G - ColorG) < CLOSECOLORTHRESHHOLD) &&
             (abs(B - ColorB) < CLOSECOLORTHRESHHOLD));
@@ -78,9 +81,9 @@ bool DoTestRedToGreen(Frame &f)
     BYTE *pmatrix = (BYTE *) &f.data[0];
     pos = theState.getLightPos();
     f.pos = pos;
-    int R = pmatrix[pos];
+    int B = pmatrix[pos];
     int G = pmatrix[pos+1];
-    int B = pmatrix[pos+2];
+    int R = pmatrix[pos+2];
     int delta = 0;
     return (RGBCloseToColor(R, G, B, 0, 255, 0, delta));
 }
@@ -146,15 +149,10 @@ bool DoTestRedLight(Frame &f)
     int delta = 0;
     int mindelta = 255*3;
 
-#if 0
-    for (int rowpos = 0; rowpos < h; rowpos++) {
-        for (int xpos = 0; xpos < w; xpos++) {
-            int pos = 3*(rowpos*w + xpos);
-#endif
     for (int pos = 0; pos < w*h; pos++) {
-            int R = pmatrix[3*pos];
+            int B = pmatrix[3*pos];
             int G = pmatrix[3*pos+1];
-            int B = pmatrix[3*pos+2];
+            int R = pmatrix[3*pos+2];
             if (RGBCloseToColor(R, G, B, 255, 0, 0, delta)) {
                 f.pos = 3*pos;
                 return true;
@@ -162,8 +160,8 @@ bool DoTestRedLight(Frame &f)
             // update with closest match
             if (delta < mindelta) {
                 f.pos = 3*pos;
+                f.delta = delta;
                 mindelta = delta;
-printf("delta = %d pos = %d [%d,%d,%d]\n", delta, f.pos, f.data[f.pos], f.data[f.pos+1], f.data[f.pos+2]);
             }
     }
 

@@ -22,6 +22,7 @@ typedef struct tagFRAME {
     clock_t captureticks;
     clock_t processticks;
     unsigned long pos;
+    unsigned long delta;
 } Frame;
 
 // while driving, bs=0,srl=0,btt=0,rltg=0
